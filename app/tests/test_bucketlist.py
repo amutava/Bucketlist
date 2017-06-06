@@ -5,7 +5,7 @@ import json
 from flask import Flask
 from flask_httpauth import HTTPTokenAuth
 
-from app.auth.models import db, User
+from .. auth.models import db, User
 from app import create_app, db
 
 

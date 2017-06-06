@@ -1,25 +1,31 @@
 import os
 
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask
-from instance.config import config
+from flask import Flask, Blueprint
+from flask_login import LoginManager
+
+
+
+
+from config import config
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+#app = Flask(__name__)
 
 db = SQLAlchemy()
+login_manager = LoginManager()
 
+
+
+login_manager.session_protection = 'None'
+login_manager.login_view = 'mod_auth.login'
 
 def create_app(config_name):
-    app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'the quick brown fox jumps over the lazy dog'
-    app.config.from_object(config[config_name])
-    config[config_name].init_app(app)
-    db.init_app(app)
-
-    from auth import mod_auth as auth_blueprint
-    app.register_blueprint(auth_blueprint)
-
-    from api import api as api_blueprint
-    app.register_blueprint(api_blueprint)
-    return app
+	app = Flask(__name__)
+	app.config.from_object(config[config_name])
+	config[config_name].init_app(app)
+	app.config['SECRET_KEY'] = 'Jsa4JL*D6P;Ep<qb'
+	db.init_app(app)
+	login_manager.init_app(app)
+	return app

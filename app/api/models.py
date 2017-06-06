@@ -1,5 +1,5 @@
 from app import db
-from auth.models import User
+from .. auth.models import User
 
 
 class BucketList(db.Model):
@@ -30,7 +30,7 @@ class BucketListItems(db.Model):
     done = db.Column(db.Boolean, default=False)
 
 
-    def __init__(self, name, description, bucketlist_id, done=False):
+    def __init__(self, name, description, bucketlist_id,  done=False):
         self.name = name
         self.description = description
         self.done = done
