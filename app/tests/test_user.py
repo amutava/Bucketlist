@@ -11,7 +11,7 @@ from app import create_app, db
 
 class UserTest(unittest.TestCase):
 
-    def setUp():
+    def setUp(self):
         self.app = create_app(config_name="testing")
         self.ctx = self.app.app_context()
         self.client = self.app.test_client()
@@ -24,22 +24,23 @@ class UserTest(unittest.TestCase):
         }
 
     def test_registration(self):
+        """Tests user registration"""
         resp = self.client.post('/auth/register/', data=self.user)
-        result = json.losds(resp.data.decode('utf-8').
-                            replace("'", "\""))
+        result = json.loads(resp.data, 'utf-8')
         self.assertEqual(result['message'], "User registration successful.")
         self.assertEqual(resp.status_code, 201)
 
     def test_already_registered_user(self):
+        """Tests re-registration."""
         resp = self.client.post('/auth/register/', data=self.user)
         self.assertEqual(resp.status_code, 201)
         res = self.client.post('/auth/register/', data=self.user)
         self.assertEqual(res.status_code, 202)
-        result = json.losds(res.data.decode('utf-8').
-                            replace("'", "\""))
-        self.assertEqual(result['message'], "User already registered.")
+        result = json.loads(res.data)
+        self.assertEqual(result['message'], "User with the username already exists.")
 
     def test_login(self):
+        """Tests user login"""
         resp = self.client.post('/auth/register/', data=self.user)
         self.assertEqual(resp.status_code, 201)
         res = self.client.post('/auth/login/', data=self.user)
@@ -49,13 +50,13 @@ class UserTest(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
 
     def test_unregistered_user_login(self):
+        """Tests unregistered user login."""
         res = self.client.post('/auth/login/', data=self.user)
         self.assertEqual(res.status_code, 401)
         result = json.losds(res.data.decode('utf-8').
                             replace("'", "\""))
         self.assertEqual(result['message'], "Invalid username/ password.")
-
-    def tearDown():
+    def tearDown(self):
         db.session.remove()
         db.drop_all()
         self.ctx.pop()

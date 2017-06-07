@@ -33,8 +33,8 @@ api.add_resource(Register, '/auth/register')
 api.add_resource(Login, '/auth/login')
 api.add_resource(BucketLists, '/bucketlists')
 api.add_resource(SingleBucketList, '/bucketlists/<bucketlist_id>')
-api.add_resource(BucketListItem, '/bucketlistitems/<bucketlid_id>/items')
-api.add_resource(SingleBucketListItem, '/bucketlistitems/<bucketlid_id>/items/<item_id>')
+api.add_resource(BucketListItem, '/bucketlistitems/<bucketlist_id>/items')
+api.add_resource(SingleBucketListItem, '/bucketlistitems/<bucketlist_id>/items/<item_id>')
 
 
 if __name__ == '__main__':

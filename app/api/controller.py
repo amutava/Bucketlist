@@ -17,7 +17,7 @@ class BucketLists(Resource):
         # ipdb.set_trace()
         if token:
             user_id = User.verify_token(token)
-            if user_id:
+            if isinstance(user_id, int):
                 name = request.json['name']
                 description = request.json['description']
                 created_by = user_id
@@ -48,7 +48,7 @@ class BucketLists(Resource):
                                      'message': "Bucketlist created successfully.",
                                      "name": name,
                                      "description": description,
-                                     "created_by":created_by
+                                     "created_by": created_by
 
                                  }
                                  }), 201)
@@ -64,75 +64,48 @@ class BucketLists(Resource):
         token = request.headers.get('Authorization')
         if token:
             user_id = User.verify_token(token)
-            user_bucketlists = BucketList.query.filter_by(created_by=user_id)
-            bucketlists = []
-            if user_bucketlists:
-                for b_lists in user_bucketlists:
-                    bucketlists.append[{
-                        "id": b_lists.id,
-                        "name": b_lists.name,
-                        "description": b_lists.description,
-                        "created_by": b_lists.created_by
-                    }]
-                return make_response(jsonify(BucketLists))
+            if isinstance(user_id, int):
+                user_bucketlists = BucketList.query.filter_by(
+                    created_by=user_id).all()
+                bucketlists = []
+                if user_bucketlists:
+                    for b_lists in user_bucketlists:
+                        bucketlists.append({
+                            "id": b_lists.id,
+                            "name": b_lists.name,
+                            "description": b_lists.description,
+                            "created_by": b_lists.created_by
+                        })
+                    return make_response(jsonify({'bucketlists': bucketlists}))
 
+                else:
+                    return make_response(
+                        jsonify({'data':
+                                 {
+                                     'message': "There are no bucketlists for the current user."
+
+                                 }
+                                 }), 404)
             else:
                 return make_response(
                     jsonify({'data':
                              {
-                                 'message': "There are no bucketlists for the current user."
+                                 'message': user_id
 
                              }
-                             }), 404)
-        else:
-            return make_response(
-                jsonify({'data':
-                         {
-                             'message': "Token verification failed."
-
-                         }
-                         }), 401)
-
-    def delete(self):
-        token = request.headers.get('Authorization')
-        if token:
-            user_id = User.verify_token(token)
-            user_bucketlists = BucketList.query.filter_by(created_by=user_id)
-            if user_bucketlists:
-                del_bucketlists = BucketList.delete(created_by=user_id)
-                if del_bucketlists:
-                    return make_response(jsonify({'data':
-                                                  {
-                                                      'message': "Bucketlists for current user deleted successful."
-                                                  }
-                                                  }), 200)
-            else:
-                return make_response(
-                    jsonify({'data':
-                             {
-                                 'message': "Current user has no bucketlists."
-
-                             }
-                             }), 404)
-        else:
-            return make_response(
-                jsonify({'data':
-                         {
-                             'message': "Token verification failed."
-
-                         }
-                         }), 401)
+                             }), 401)
 
 
 class SingleBucketList(Resource):
     """Shows a single bucketlist item and lets you delete a bucketlist item."""
 
     def put(self, bucketlist_id):
+
         token = request.headers.get('Authorization')
-        if token:
-            user_id = User.verify_token(token)
-            bucketlist = Bucketlist.query.filter_by(
-                id=bucketlist_id, created_by=user_id).first()
+        user_id = User.verify_token(token)
+        if isinstance(user_id, int):
+            bucketlist = BucketList.query.filter_by(
+                created_by=user_id).first()
             if not bucketlist:
                 return make_response(
                     jsonify({'data':
@@ -152,16 +125,15 @@ class SingleBucketList(Resource):
                              }
                              }), 403)
 
-            if new_bucketlist_name == bucketList.name:
+            if new_bucketlist_name == bucketlist.name:
                 return make_response(
                     jsonify({'data':
                              {
-                                 'message': "Bucketlist name has not been edited ."
+                                 'message': "Bucketlist name is the same as before ."
 
                              }
                              }), 403)
             bucketlist.name = new_bucketlist_name
-            # bucketlist.date_modified =
             db.session.add(bucketlist)
             db.session.commit()
             return make_response(
@@ -171,6 +143,7 @@ class SingleBucketList(Resource):
                           'date_created': bucketlist.date_created,
                           'date_modified': bucketlist.date_modified,
                           'date_created': bucketlist.created_by,
+                          'description': bucketlist.description,
                           'message': "Bucketlist edited successfully."
 
                           }
@@ -179,24 +152,26 @@ class SingleBucketList(Resource):
             return make_response(
                 jsonify({'data':
                          {
-                             'message': "Token verification failed."
+                             'message': user_id
 
                          }
                          }), 401)
 
     def delete(self, bucketlist_id):
         token = request.headers.get('Authorization')
-        if token:
-            user_id = User.verify_token(token)
-            bucketlist = Bucketlist.query.filter_by(
+        user_id = User.verify_token(token)
+        if isinstance(user_id, int):
+            bucketlist = BucketList.query.filter_by(
                 id=bucketlist_id, created_by=user_id).first()
             if bucketlist:
-                bucketlist = Bucketlist.delete(id=bucketlist_id)
+                db.session.delete(bucketlist)
+                db.session.commit()
                 return make_response(
                     jsonify({'data':
                              {
                                  'message': "Bucketlist deleted successfully.",
                                  'name': bucketlist.name,
+                                 'description': bucketlist.description,
                                  "id": bucketlist.id
                              }
                              }), 404)
@@ -204,31 +179,57 @@ class SingleBucketList(Resource):
                 return make_response(
                     jsonify({'data':
                              {
-                                 'message': "with given id does not exist."
+                                 'message': "Bucketlist with given id does not exist."
                              }
                              }), 200)
         else:
             return make_response(
                 jsonify({'data':
                          {
-                             'message': "Token verification failed."
+                             'message': user_id
 
                          }
                          }), 401)
 
     def get(self, bucketlist_id):
         token = request.headers.get('Authorization')
-        if token:
-            user_id = User.verify_token(token)
+        user_id = User.verify_token(token)
+        if isinstance(user_id, int):
             bucketlist = BucketList.query.filter_by(id=bucketlist_id).first()
+            item = BucketListItems.query.filter_by(
+                bucketlist_id=bucketlist_id).all()
             if bucketlist:
+                items = []
+                if item:
+                    for b_item in item:
+                        items.append({"name":b_item.name,
+                            "id":b_item.id,
+                            "date_created":b_item.date_created,
+                            "date_modified":b_item.date_modified,
+                            "done":b_item.done})
+                    return make_response(
+                    jsonify(
+                        {'data':
+                         {
+                             'name': bucketlist.name,
+                             'description': bucketlist.description,
+                             'items':items,
+                             'message': "Bucketlist obtained successfully.",
+                             'created_by': bucketlist.created_by,
+                             'date_created': bucketlist.date_created
+                         }
+                         }), 200)   
+
                 return make_response(
                     jsonify(
                         {'data':
                          {
-                             'name': Bucketlist.name,
-                             'description': Bucketlist.description,
-                             'message': "with given id does not exist."
+                             'name': bucketlist.name,
+                             'description': bucketlist.description,
+                             'items':items,
+                             'message': "Bucketlist obtained successfully.",
+                             'created_by': bucketlist.created_by,
+                             'date_created': bucketlist.date_created
                          }
                          }), 200)
             else:
@@ -242,7 +243,7 @@ class SingleBucketList(Resource):
             return make_response(
                 jsonify({'data':
                          {
-                             'message': "Token verification failed."
+                             'message': user_id
 
                          }
                          }), 401)
@@ -253,17 +254,18 @@ class BucketListItem(Resource):
 
     def post(self, bucketlist_id):
         token = request.headers.get('Authorization')
-        if token:
-            user_id = User.verify_token(token)
-            data = request.json
-            name = data["name"]
+        user_id = User.verify_token(token)
+        if isinstance(user_id, int):
+            name = request.json["name"]
             if name:
-                item = BucketListItems.query.filter_by(name=name).first()
+                item = BucketListItems.query.filter_by(
+                    bucketlist_id=bucketlist_id).first()
                 if item:
                     return make_response(
                         jsonify({'data':
                                  {
-                                     'message': "Item with the given name exists."
+                                     'message': "Item with the given name exists.",
+                                     'name': name
                                  }
                                  }), 400)
                 b_item = BucketListItems(name, bucketlist_id)
@@ -272,7 +274,8 @@ class BucketListItem(Resource):
                 return make_response(
                     jsonify({'data':
                              {
-                                 'message': "Bucket list item added successfully."
+                                 'message': "Bucket list item added successfully.",
+                                 'name': name
                              }
                              }), 200)
             return make_response(
@@ -285,37 +288,15 @@ class BucketListItem(Resource):
             return make_response(
                 jsonify({'data':
                          {
-                             'message': "Token verification failed."
+                             'message': user_id
 
                          }
                          }), 401)
 
-    def delete(self, bucketlist_id):
-        token = request.headers.get('Authorization')
-        if token:
-            user_id = User.verify_token(token)
-            items = BucketlistItems.delete(bucketlist_id=bucketlist_id)
-            if items:
-                return make_response(
-                    jsonify({'data':
-                             {
-                                 'message': "Items of the bucketlist deleted successfully.."
-
-                             }
-                             }), 200)
-            else:
-                return make_response(
-                    jsonify({'data':
-                             {
-                                 'message': "No bucketlist items for deletion."
-
-                             }
-                             }), 401)
-
     def get(self, bucketlist_id):
         token = request.headers.get('Authorization')
-        if token:
-            user_id = User.verify_token(token)
+        user_id = User.verify_token(token)
+        if isinstance(user_id, int):
             items = BucketListItems.query.filter_by(
                 bucketlist_id=bucketlist_id).all()
             if items:
@@ -323,15 +304,20 @@ class BucketListItem(Resource):
                 for item in items:
                     item_list.append({
                         "id": item.id,
-                        "name": item.name
+                        "name": item.name,
+                        "message": "Bucketlist item obtained successfully.",
+                        "date_created": item.date_created,
+                        "done": item.done
                     })
                 return make_response(
-                    jsonify(item_list), 200)
+                    jsonify({"Bucketlistitems":
+
+                             item_list}), 200)
         else:
             return make_response(
                 jsonify({'data':
                          {
-                             'message': "Token verification failed."
+                             'message': user_id
 
                          }
                          }), 401)
@@ -341,8 +327,8 @@ class SingleBucketListItem(Resource):
 
     def get(self, bucketlist_id, item_id):
         token = request.headers.get('Authorization')
-        if token:
-            user_id = User.verify_token(token)
+        user_id = User.verify_token(token)
+        if isinstance(user_id, int):     
             item = BucketListItems.query.filter_by(
                 bucketlist_id=bucketlist_id, id=item_id).first()
             if item:
@@ -350,7 +336,7 @@ class SingleBucketListItem(Resource):
                     jsonify({'data':
                              {
                                  'message': "Bucketlist item obtained successfully.",
-                                 'item_id': item.item_id,
+                                 'item_id': item.id,
                                  'name': item.name,
                                  'date_created': item.date_created,
                                  'date_modified': item.date_modified
@@ -369,17 +355,17 @@ class SingleBucketListItem(Resource):
         return make_response(
             jsonify({'data':
                      {
-                         'message': "Token verification failed."
+                         'message': user_id
 
                      }
                      }), 401)
 
     def put(self, bucketlist_id, item_id):
         token = request.headers.get('Authorization')
-        if token:
-            user_id = User.verify_token(token)
-            bucketlistitem = BucketListItem.query.filter_by(
-                id=bucketlist_id, item_id=item_id).first()
+        user_id = User.verify_token(token)
+        if isinstance(user_id, int): 
+            bucketlistitem = BucketListItems.query.filter_by(
+                bucketlist_id=bucketlist_id, id=item_id).first()
             if not bucketlistitem:
                 return make_response(
                     jsonify({'data':
@@ -390,7 +376,7 @@ class SingleBucketListItem(Resource):
                              }), 404)
 
             new_bucketlistitem_name = request.json["name"]
-            if not new_bucketlist_name:
+            if not new_bucketlistitem_name:
                 return make_response(
                     jsonify({'data':
                              {
@@ -408,7 +394,7 @@ class SingleBucketListItem(Resource):
                              }
                              }), 403)
             bucketlistitem.name = new_bucketlistitem_name
-            # bucketlist.date_modified =
+
             db.session.add(bucketlistitem)
             db.session.commit()
             return make_response(
@@ -425,15 +411,15 @@ class SingleBucketListItem(Resource):
             return make_response(
                 jsonify({'data':
                          {
-                             'message': "Token verification failed."
+                             'message': user_id
 
                          }
                          }), 401)
 
     def delete(self, bucketlist_id, item_id):
         token = request.headers.get('Authorization')
-        if token:
-            user_id = User.verify_token(token)
+        user_id = User.verify_token(token)
+        if isinstance(user_id, int):
             item = BucketListItems.query.filter_by(
                 bucketlist_id=bucketlist_id, id=item_id).first()
             if item:
@@ -441,7 +427,9 @@ class SingleBucketListItem(Resource):
                 return make_response(
                     jsonify({'data':
                              {
-                                 'message': "Item deleted successfully."
+                                 'message': "Item deleted successfully.",
+                                 'name': item.name,
+                                 'date_created': item.date_created
 
                              }
                              }), 200)
@@ -456,7 +444,7 @@ class SingleBucketListItem(Resource):
         return make_response(
             jsonify({'data':
                      {
-                         'message': "Token verification failed."
+                         'message': user_id
 
                      }
                      }), 401)

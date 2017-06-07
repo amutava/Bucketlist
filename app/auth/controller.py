@@ -13,39 +13,39 @@ class Register(Resource):
         password = request.json["password"]
         if username is None:
             return make_response(
-                jsonify({'data':
+                jsonify(
                          {
                              'message': "Username is missing."
 
                          }
-                         }), 400)
+                         ), 400)
         if password is None:
             return make_response(
-                jsonify({'data':
+                jsonify(
                          {
                              'message': "Password is missing."
 
                          }
-                         }), 400)
+                         ), 400)
 
         user = User.query.filter_by(username=username).first()
         if user:
             return make_response(
-                jsonify({'data': {
-                    'message': "user with the username already exists.",
+                jsonify({
+                    'message': "User with the username already exists.",
                     "username": username
 
-                }}), 400)  # existing user
+                }), 400)  # existing user
         user = User(username, password)
         db.session.add(user)
         db.session.commit()
         return make_response(
-            jsonify({'data': {
+            jsonify({
                     'message': "User registration successful.",
                     "username": username,
 
 
-                    }}), 200)
+                    }), 200)
 
 
 class Login(Resource):

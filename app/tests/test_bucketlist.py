@@ -18,14 +18,16 @@ class BucketListTest(unittest.TestCase):
         self.ctx.push()
         db.drop_all()
         db.create_all()
-        self.bucketlist = {'name': 'Go to Canada.'}
+        self.bucketlist = {'name': 'Go to Canada.', 'description':"with an helicopter."}
 
     def test_create_bucketlist(self):
+        """ Tests bucketlist creation."""
         resp = self.client.post('/bucketlists/', data=self.bucketlist)
         self.assertEqual(resp.status_code, 201)
         self.assertIn('Go to Canada', str(resp.data))
 
     def test_get_bucketlists(self):
+        """Tests getting the bucketlists."""
         resp = self.client.post('/bucketlists/', data=self.bucketlist)
         self.assertEqual(resp.status_code, 201)
         resp = self.client.get('/bucketlists/')
@@ -33,6 +35,7 @@ class BucketListTest(unittest.TestCase):
         self.assertIn('Go to Canada', str(resp.data))
 
     def test_get_bucketlist_by_id(self):
+        """Tests getting a single bucketlist"""
         resp = self.client.post('/bucketlists/', data=self.bucketlist)
         self.assertEqual(resp.status_code, 201)
         result_in_json = json.loads(
@@ -43,6 +46,7 @@ class BucketListTest(unittest.TestCase):
         self.assertIn('Go to Canada', str(result.data))
 
     def test_delete_bucketlist(self):
+        """Tests deleting a bucketlist"""
         resp = self.client.post('/bucketlists/', data=self.bucketlist)
         self.assertEqual(resp.status_code, 201)
         rv = self.client.delete('/bucketlists/1')
@@ -51,6 +55,7 @@ class BucketListTest(unittest.TestCase):
         self.assertEqual(result.status_code, 404)
 
     def test_update_bucketlist(self):
+        """Tests updating a bucketlist."""
         resp = self.client.post('/bucketlists/', data=self.bucketlist)
         self.assertEqual(resp.status_code, 201)
         rv = self.client.put('/bucketlists/1',
