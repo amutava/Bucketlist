@@ -19,40 +19,40 @@ class UserTest(unittest.TestCase):
         db.drop_all()
         db.create_all()
         self.user = {
-        "username" : "angie",
-        "password": "angie"
+            "username": "angie",
+            "password": "angie"
         }
 
     def test_registration(self):
         resp = self.client.post('/auth/register/', data=self.user)
-        result = json.losds(resp.data.decode('utf-8').\
-            replace("'", "\""))
+        result = json.losds(resp.data.decode('utf-8').
+                            replace("'", "\""))
         self.assertEqual(result['message'], "User registration successful.")
         self.assertEqual(resp.status_code, 201)
 
     def test_already_registered_user(self):
-         resp = self.client.post('/auth/register/', data=self.user)   
-         self.assertEqual(resp.status_code, 201)
-         res = self.client.post('/auth/register/', data=self.user)  
-         self.assertEqual(res.status_code, 202)
-         result = json.losds(res.data.decode('utf-8').\
-            replace("'", "\""))
-         self.assertEqual(result['message'], "User already registered.")
+        resp = self.client.post('/auth/register/', data=self.user)
+        self.assertEqual(resp.status_code, 201)
+        res = self.client.post('/auth/register/', data=self.user)
+        self.assertEqual(res.status_code, 202)
+        result = json.losds(res.data.decode('utf-8').
+                            replace("'", "\""))
+        self.assertEqual(result['message'], "User already registered.")
 
     def test_login(self):
-         resp = self.client.post('/auth/register/', data=self.user)   
-         self.assertEqual(resp.status_code, 201)
-         res = self.client.post('/auth/login/', data=self.user)  
-         result = json.losds(res.data.decode('utf-8').\
-            replace("'", "\""))
-         self.assertEqual(result['message'], "Login successful.")
-         self.assertEqual(res.status_code, 200)
+        resp = self.client.post('/auth/register/', data=self.user)
+        self.assertEqual(resp.status_code, 201)
+        res = self.client.post('/auth/login/', data=self.user)
+        result = json.losds(res.data.decode('utf-8').
+                            replace("'", "\""))
+        self.assertEqual(result['message'], "Login successful.")
+        self.assertEqual(res.status_code, 200)
 
-    def test_unregistered_user_login(self):      
-        res = self.client.post('/auth/login/', data=self.user)  
+    def test_unregistered_user_login(self):
+        res = self.client.post('/auth/login/', data=self.user)
         self.assertEqual(res.status_code, 401)
-        result = json.losds(res.data.decode('utf-8').\
-            replace("'", "\""))
+        result = json.losds(res.data.decode('utf-8').
+                            replace("'", "\""))
         self.assertEqual(result['message'], "Invalid username/ password.")
 
     def tearDown():
@@ -61,4 +61,4 @@ class UserTest(unittest.TestCase):
         self.ctx.pop()
 
 if __name__ == '__main__':
-    unittest.main()     
+    unittest.main()

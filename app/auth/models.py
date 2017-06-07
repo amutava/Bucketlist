@@ -2,7 +2,8 @@ import datetime
 import jwt
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask.ext.login import UserMixin
+from flask_login import UserMixin
+from flask import current_app
 
 
 
@@ -15,6 +16,10 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(128))
     date_created = db.Column(db.DateTime, default=datetime.datetime.utcnow())
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
 
     @property
     def password(self):
@@ -33,14 +38,14 @@ class User(UserMixin, db.Model):
         try:
             # set up a payload with an expiration time
             payload = {
-                'exp': datetime.utcnow() + timedelta(minutes=5),
-                'iat': datetime.utcnow(),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=5),
+                'iat': datetime.datetime.utcnow(),
                 'sub': user_id
             }
             # create the byte string token using the payload and the SECRET key
             jwt_string = jwt.encode(
                 payload,
-                current_app.config.get('SECRET'),
+                current_app.config.get('SECRET_KEY'),
                 algorithm='HS256'
             )
             return jwt_string
@@ -54,11 +59,11 @@ class User(UserMixin, db.Model):
         """Decodes the access token from the Authorization header."""
         try:
             # try to decode the token using our SECRET variable
-            payload = jwt.decode(token, current_app.config.get('SECRET'))
+            payload = jwt.decode(token, current_app.config.get('SECRET_KEY'))
             return payload['sub']
         except jwt.ExpiredSignatureError:
             # the token is expired, return an error string
-            return "Expired token. Please login to get a new token"
+            return "Expired token. Please login to get a new token."
         except jwt.InvalidTokenError:
             # the token is invalid, return an error string
-            return "Invalid token. Please register or login"
+            return "Invalid token. Please register or login."

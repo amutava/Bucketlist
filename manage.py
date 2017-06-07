@@ -1,5 +1,5 @@
 import os
-from flask.ext.script import Manager, Shell
+from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
 from flask_restful import Api
 
@@ -7,7 +7,7 @@ from flask_restful import Api
 from app import create_app, db
 from app.api.models import BucketList, BucketListItems
 from app.auth.models import User
-from app.api.controller import BucketLists, BucketListItem, SingleBucketList
+from app.api.controller import BucketLists, BucketListItem, SingleBucketList, SingleBucketListItem
 from app.auth.controller import Register, Login
 
 
@@ -21,7 +21,11 @@ def make_shell_context():
     to the shell importing them automatically on
     python manage.py shell.
     """
-    return dict(app=app, db=db, User=User, BucketList=BucketList, BucketListItems=BucketListItems)
+    return dict(app=app, db=db, User=User, 
+    	BucketList=BucketList, BucketListItems=
+    	BucketListItems, SingleBucketList=
+    	SingleBucketList, SingleBucketListItem=
+    	SingleBucketListItem)
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
@@ -29,7 +33,8 @@ api.add_resource(Register, '/auth/register')
 api.add_resource(Login, '/auth/login')
 api.add_resource(BucketLists, '/bucketlists')
 api.add_resource(SingleBucketList, '/bucketlists/<bucketlist_id>')
-api.add_resource(BucketListItem, '/bucketlistitems/<bucketlid_id>')
+api.add_resource(BucketListItem, '/bucketlistitems/<bucketlid_id>/items')
+api.add_resource(SingleBucketListItem, '/bucketlistitems/<bucketlid_id>/items/<item_id>')
 
 
 if __name__ == '__main__':

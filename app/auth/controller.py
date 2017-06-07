@@ -1,65 +1,89 @@
-from flask import jsonify, abort, url_for, g, request
-from itsdangerous import (TimedJSONWebSignatureSerializer
-                          as Serializer, BadSignature, SignatureExpired)
+from flask import jsonify, make_response, request
+
 from flask_httpauth import HTTPTokenAuth
 from flask_restful import Resource, Api
 
+from app import db
 from models import User
-
-
-
-#auth = HTTPTokenAuth('Bearer')
 
 
 class Register(Resource):
     def post(self):
-        data = request.data
-        username = data["usename"]
-        password = data["password"]
-        if username is None or password is None:
-            abort(400)  # missing arguments
-        if User.query.filter_by(username=username).first() is not None:
-            abort(400, {
-                "error": {
-                    "message": "User already registered."
-                }
-            })  # existing user
-        user = User(username=username)
-        user.hash_password(password)
+        username = request.json["username"]
+        password = request.json["password"]
+        if username is None:
+            return make_response(
+                jsonify({'data':
+                         {
+                             'message': "Username is missing."
+
+                         }
+                         }), 400)
+        if password is None:
+            return make_response(
+                jsonify({'data':
+                         {
+                             'message': "Password is missing."
+
+                         }
+                         }), 400)
+
+        user = User.query.filter_by(username=username).first()
+        if user:
+            return make_response(
+                jsonify({'data': {
+                    'message': "user with the username already exists.",
+                    "username": username
+
+                }}), 400)  # existing user
+        user = User(username, password)
         db.session.add(user)
         db.session.commit()
-        return (jsonify({'username': user.username,
-                         "message": "User registration successful."}), 201)
+        return make_response(
+            jsonify({'data': {
+                    'message': "User registration successful.",
+                    "username": username,
+
+
+                    }}), 200)
 
 
 class Login(Resource):
 
     def post(self):
-        username = request.json.get('username')
-        password = request.json.get('password')
+        username = request.json["username"]
+        password = request.json["password"]
         if username is None:
-            abort(400, {
-                "error": {
-                    "message": "Username is missing."
-                }
-            })
+            return make_response(
+                jsonify({'data':
+                         {
+                             'message': "Username is missing."
+
+                         }
+                         }), 400)
         if password is None:
-            abort(400, {
-                "error": {
-                    "message": "Password is missing."
-                }
-            })
+            return make_response(
+                jsonify({'data':
+                         {
+                             'message': "Password is missing."
+
+                         }
+                         }), 400)
 
         user = User.query.filter_by(username=username).first()
         if user and user.verify_password(password):
-            token = User.generate_auth_token(User.id)
-            return jsonify({
-                "message": "Login successful.",
-                "username": user.username,
-                "token": token
-            })
-        abort(400, {
-            "error": {
-                "message": "Invalid username/ password."
-            }
-        })
+            token = user.generate_auth_token(user.id)
+            if token:
+                return make_response(jsonify({'data': {
+                    "message": "Login successful.",
+                    "username": user.username,
+                    "token": token.decode()
+                }
+                }), 200)
+        return make_response(
+            jsonify({'data':
+                     {
+                         'message': "Invalid username/password."
+
+                     }
+                     }), 400)

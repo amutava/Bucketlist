@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: bbedd522cb59
+Revision ID: 13b39255bd30
 Revises: 
-Create Date: 2017-06-06 09:51:23.598439
+Create Date: 2017-06-07 13:54:55.635662
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'bbedd522cb59'
+revision = '13b39255bd30'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,25 +28,24 @@ def upgrade():
     op.create_index(op.f('ix_users_username'), 'users', ['username'], unique=True)
     op.create_table('bucketlists',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=128), nullable=True),
     sa.Column('description', sa.String(length=128), nullable=True),
     sa.Column('date_created', sa.DateTime(), nullable=True),
     sa.Column('date_modified', sa.DATETIME(), nullable=True),
     sa.Column('done', sa.Boolean(), nullable=True),
     sa.Column('created_by', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['created_by'], [u'users.id'], ),
-    sa.PrimaryKeyConstraint('id', 'name')
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('bucketlistitems',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.Integer(), nullable=False),
-    sa.Column('description', sa.String(length=128), nullable=True),
+    sa.Column('name', sa.String(length=128), nullable=True),
     sa.Column('date_created', sa.DateTime(), nullable=True),
     sa.Column('date_modified', sa.DATETIME(), nullable=True),
     sa.Column('bucketlist_id', sa.Integer(), nullable=True),
     sa.Column('done', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['bucketlist_id'], [u'bucketlists.id'], ),
-    sa.PrimaryKeyConstraint('id', 'name')
+    sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
 
