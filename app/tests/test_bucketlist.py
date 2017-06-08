@@ -39,7 +39,7 @@ class BucketListTest(unittest.TestCase):
         resp = self.client.post('/bucketlists/', data=self.bucketlist)
         self.assertEqual(resp.status_code, 201)
         result_in_json = json.loads(
-            resp.data.decode('utf-8').replace("'", "\""))
+            resp.data)
         result = self.client.get(
             "/bucketlists/{}".format(result_in_json["id"]))
         self.assertEqual(result.status_code, 200)

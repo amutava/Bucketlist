@@ -2,20 +2,24 @@ import os
 import unittest
 import json
 
-from flask import Flask
-from flask_httpauth import HTTPTokenAuth
 
-from .. auth.models import db, User
+
+from flask import Flask
+
+# from .. auth.models import db, User
+
+
 from app import create_app, db
 
 
 class UserTest(unittest.TestCase):
 
     def setUp(self):
-        self.app = create_app(config_name="testing")
-        self.ctx = self.app.app_context()
+        self.app = create_app("testing")
+
+        self.context = self.app.app_context()
         self.client = self.app.test_client()
-        self.ctx.push()
+        self.context.push()
         db.drop_all()
         db.create_all()
         self.user = {
@@ -23,43 +27,42 @@ class UserTest(unittest.TestCase):
             "password": "angie"
         }
 
-    def test_registration(self):
-        """Tests user registration"""
-        resp = self.client.post('/auth/register/', data=self.user)
-        result = json.loads(resp.data, 'utf-8')
-        self.assertEqual(result['message'], "User registration successful.")
-        self.assertEqual(resp.status_code, 201)
+
+    # def test_registration(self):
+    #     """Tests user registration"""
+    #     resp = self.client.post('/auth/register', data=json.dumps(self.user), content_type='application/json')
+    #     result = json.loads(resp.data)
+    #     self.assertEqual(result['message'], "User registration successful.")
+    #     self.assertEqual(resp.status_code, 201)
 
     def test_already_registered_user(self):
         """Tests re-registration."""
-        resp = self.client.post('/auth/register/', data=self.user)
+        resp = self.client.post('/auth/register', data=json.dumps(self.user), content_type='application/json')
         self.assertEqual(resp.status_code, 201)
-        res = self.client.post('/auth/register/', data=self.user)
+        res = self.client.post('/auth/register', data=self.user)
         self.assertEqual(res.status_code, 202)
         result = json.loads(res.data)
         self.assertEqual(result['message'], "User with the username already exists.")
 
     def test_login(self):
         """Tests user login"""
-        resp = self.client.post('/auth/register/', data=self.user)
+        resp = self.client.post('/auth/register', data=self.user)
         self.assertEqual(resp.status_code, 201)
-        res = self.client.post('/auth/login/', data=self.user)
-        result = json.losds(res.data.decode('utf-8').
-                            replace("'", "\""))
+        res = self.client.post('/auth/login', data=self.user)
+        result = json.losds(res.data)
         self.assertEqual(result['message'], "Login successful.")
         self.assertEqual(res.status_code, 200)
 
     def test_unregistered_user_login(self):
         """Tests unregistered user login."""
-        res = self.client.post('/auth/login/', data=self.user)
+        res = self.client.post('/auth/login', data=self.user)
         self.assertEqual(res.status_code, 401)
-        result = json.losds(res.data.decode('utf-8').
-                            replace("'", "\""))
-        self.assertEqual(result['message'], "Invalid username/ password.")
+        result = json.losds(res.data)
+        self.assertEqual(result['message'], "Invalid username/password.")
     def tearDown(self):
         db.session.remove()
         db.drop_all()
-        self.ctx.pop()
+        self.context.pop()
 
 if __name__ == '__main__':
     unittest.main()

@@ -4,14 +4,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, Blueprint
 from flask_login import LoginManager
 
-
-
-
 from config import config
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-#app = Flask(__name__)
+
 
 db = SQLAlchemy()
 login_manager = LoginManager()

@@ -1,17 +1,16 @@
 from flask import jsonify, make_response, request
-
 from flask_httpauth import HTTPTokenAuth
 from flask_restful import Resource, Api
 
 from app import db
-from models import User
+from app.auth.models import User
 
 
 class Register(Resource):
     def post(self):
         username = request.json["username"]
         password = request.json["password"]
-        if username is None:
+        if not username:
             return make_response(
                 jsonify(
                          {
@@ -19,7 +18,7 @@ class Register(Resource):
 
                          }
                          ), 400)
-        if password is None:
+        if not password:
             return make_response(
                 jsonify(
                          {
@@ -53,22 +52,22 @@ class Login(Resource):
     def post(self):
         username = request.json["username"]
         password = request.json["password"]
-        if username is None:
+        if not username:
             return make_response(
-                jsonify({'data':
+                jsonify(
                          {
                              'message': "Username is missing."
 
                          }
-                         }), 400)
-        if password is None:
+                         ), 400)
+        if not password:
             return make_response(
-                jsonify({'data':
+                jsonify(
                          {
                              'message': "Password is missing."
 
                          }
-                         }), 400)
+                         ), 400)
 
         user = User.query.filter_by(username=username).first()
         if user and user.verify_password(password):
