@@ -25,19 +25,17 @@ class BucketLists(Resource):
                             jsonify(
                                 {
                                     'message': " Missing name."
-
                                 }
                             ), 400)
-
                     if not description:
                         return make_response(
                             jsonify(
                                 {
                                     'message': "Missing password."
-
                                 }
                             ), 400)
-                    bucketlist = BucketList.query.filter_by(name=name).first()
+                    bucketlist = BucketList.query.filter_by(name=name).\
+                        first()
                     if bucketlist:
                         return make_response(
                             jsonify(
@@ -70,38 +68,82 @@ class BucketLists(Resource):
             return make_response(jsonify({
                 "error": "missing data in request."
             }))
-            
+
     def get(self):
         token = request.headers.get('Authorization')
         user_id = User.verify_token(token)
         if isinstance(user_id, int):
-            user_bucketlists = BucketList.query.filter_by(
-                created_by=user_id).all()
-            bucketlists = []
-            if user_bucketlists:
-                for b_lists in user_bucketlists:
-                    bucketlists.append({
-                        "id": b_lists.id,
-                        "name": b_lists.name,
-                        "description": b_lists.description,
-                        "created_by": b_lists.created_by
-                    })
-                return make_response(jsonify({'bucketlists': bucketlists}), 201)
+            search = request.args.get("q", "")
+            if not search:
+                if request.args.get("page"):
+                    page = int(request.args.get("page"))
+                page = 1
+                if request.args.get("limit") and int(request.
+                                                     args.get("limit")) < 100:
+                    limit = int(request.
+                                args.get("limit"))
+                limit = 2
 
+                paginated_bucketlists = BucketList.query.filter_by(
+                    created_by=user_id).paginate(page, limit, False)
+                user_bucketlists = paginated_bucketlists.items
+                if paginated_bucketlists.has_next:
+                    next_page = '/bucketlists/?page=' +\
+                        str(page + 1) + '&limit=' + str(limit)
+                next_page = "This page is empty."
+                if paginated_bucketlists.has_prev:
+                    previous_page = '/bucketlists/?page=' +\
+                        str(page - 1) + '&limit=' + str(limit)
+                previous_page = "This page is empty."
+                bucketlists = []
+                if user_bucketlists:
+                    for b_lists in user_bucketlists:
+                        bucketlists.append({
+                            "id": b_lists.id,
+                            "name": b_lists.name,
+                            "description": b_lists.description,
+                            "created_by": b_lists.created_by
+                        })
+                    return make_response(jsonify({'bucketlists': bucketlists,
+                                                  "next page": next_page,
+                                                  "previous_page": previous_page
+                                                  }), 200)
+
+                else:
+                    return make_response(
+                        jsonify(
+                            {
+                                'message': "There are no bucketlists for the current user."
+                            }
+                        ), 404)
             else:
+                search_result = BucketList.query.filter_by(name=search).all()
+                if not search_result:
+                    return make_response(
+                        jsonify(
+                            {
+                                'message': "Bucketlist with the name doesn't exist."
+                            }
+                        ), 404)
+                result = []
+                for b_lists in search_result:
+                    result.append({"name": b_lists.id,
+                                   "id": b_lists.id,
+                                   "date_created": b_lists.date_created,
+                                   "date_modified": b_lists.date_modified,
+                                   "created_by": b_lists.created_by})
                 return make_response(
                     jsonify(
                         {
-                            'message': "There are no bucketlists for the current user."
-
+                            'bucketlists': result
                         }
-                    ), 404)
+                    ), 200)
+
         else:
             return make_response(
                 jsonify(
                     {
                         'message': user_id
-
                     }
                 ), 401)
 
@@ -110,7 +152,6 @@ class SingleBucketList(Resource):
     """Shows a single bucketlist item and lets you delete a bucketlist item."""
 
     def put(self, bucketlist_id):
-
         token = request.headers.get('Authorization')
         user_id = User.verify_token(token)
         if isinstance(user_id, int):
@@ -121,10 +162,8 @@ class SingleBucketList(Resource):
                     jsonify(
                         {
                             'message': "Bucketlist not found."
-
                         }
                     ), 404)
-
             new_bucketlist_name = request.json["name"]
             if not new_bucketlist_name:
                 return make_response(
@@ -134,13 +173,11 @@ class SingleBucketList(Resource):
 
                         }
                     ), 403)
-
             if new_bucketlist_name == bucketlist.name:
                 return make_response(
                     jsonify(
                         {
                             'message': "Bucketlist name is the same as before ."
-
                         }
                     ), 403)
             bucketlist.name = new_bucketlist_name
@@ -155,7 +192,6 @@ class SingleBucketList(Resource):
                      'date_created': bucketlist.created_by,
                      'description': bucketlist.description,
                      'message': "Bucketlist edited successfully."
-
                      }
                 ), 200)
         else:
@@ -163,7 +199,6 @@ class SingleBucketList(Resource):
                 jsonify(
                     {
                         'message': user_id
-
                     }
                 ), 401)
 
@@ -180,7 +215,6 @@ class SingleBucketList(Resource):
                     jsonify(
                         {
                             'message': "Bucketlist deleted successfully."
-                            
                         }
                     ), 204)
             else:
@@ -194,7 +228,6 @@ class SingleBucketList(Resource):
             return make_response(
                 jsonify({
                     'message': user_id
-
                 }
                 ), 404)
 
@@ -216,28 +249,25 @@ class SingleBucketList(Resource):
                                       "done": b_item.done})
                     return make_response(
                         jsonify(
-
-                            {   'id':bucketlist.id,
+                            {'id': bucketlist.id,
                                 'name': bucketlist.name,
                                 'description': bucketlist.description,
                                 'items': items,
                                 'message': "Bucketlist obtained successfully.",
                                 'created_by': bucketlist.created_by,
                                 'date_created': bucketlist.date_created
-                            }
+                             }
                         ), 200)
-
                 return make_response(
                     jsonify(
-
-                        {   'id':bucketlist.id,
+                        {'id': bucketlist.id,
                             'name': bucketlist.name,
                             'description': bucketlist.description,
                             'items': items,
                             'message': "Bucketlist obtained successfully.",
                             'created_by': bucketlist.created_by,
                             'date_created': bucketlist.date_created
-                        }
+                         }
                     ), 200)
             else:
                 return make_response(
@@ -251,7 +281,6 @@ class SingleBucketList(Resource):
                 jsonify(
                     {
                         'message': user_id
-
                     }
                 ), 401)
 
@@ -297,7 +326,6 @@ class BucketListItem(Resource):
                     jsonify(
                         {
                             'message': user_id
-
                         }
                     ), 401)
         except:
@@ -330,7 +358,6 @@ class BucketListItem(Resource):
                 jsonify(
                     {
                         'message': user_id
-
                     }
                 ), 401)
 
@@ -352,8 +379,6 @@ class SingleBucketListItem(Resource):
                             'name': item.name,
                             'date_created': item.date_created,
                             'date_modified': item.date_modified
-
-
                         }
                     ), 200)
 
@@ -361,14 +386,12 @@ class SingleBucketListItem(Resource):
                 jsonify(
                     {
                         'message': "Bucket list item with the id does not exist."
-
                     }
                 ), 404)
         return make_response(
             jsonify(
                 {
                     'message': user_id
-
                 }
             ), 401)
 
@@ -383,7 +406,6 @@ class SingleBucketListItem(Resource):
                     jsonify(
                         {
                             'message': "Bucketlist item not found."
-
                         }
                     ), 404)
 
@@ -393,7 +415,6 @@ class SingleBucketListItem(Resource):
                     jsonify(
                         {
                             'message': "name field is missing."
-
                         }
                     ), 403)
 
@@ -402,7 +423,6 @@ class SingleBucketListItem(Resource):
                     jsonify(
                         {
                             'message': "Bucketlistitem name is the same."
-
                         }
                     ), 403)
             bucketlistitem.name = new_bucketlistitem_name
@@ -416,7 +436,6 @@ class SingleBucketListItem(Resource):
                      'date_created': bucketlistitem.date_created,
                      'date_modified': bucketlistitem.date_modified,
                      'message': "Bucketlist edited successfully."
-
                      }
                 ), 201)
         else:
@@ -424,7 +443,6 @@ class SingleBucketListItem(Resource):
                 jsonify(
                     {
                         'message': user_id
-
                     }
                 ), 401)
 
@@ -442,14 +460,12 @@ class SingleBucketListItem(Resource):
                             'message': "Item deleted successfully.",
                             'name': item.name,
                             'date_created': item.date_created
-
                         }
                     ), 204)
             return make_response(
                 jsonify(
                     {
                         'message': "Item doesn't exist."
-
                     }
                 ), 404)
 
@@ -457,6 +473,5 @@ class SingleBucketListItem(Resource):
             jsonify(
                 {
                     'message': user_id
-
                 }
             ), 401)

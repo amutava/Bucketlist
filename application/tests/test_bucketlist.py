@@ -84,7 +84,7 @@ class BucketListTest(unittest.TestCase):
             "Authorization":self.token
             })
         result = json.loads(response.data)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(result['bucketlists'][0]['name'], 'Go to Canada.')
 
     def test_no_bucketlists(self):
