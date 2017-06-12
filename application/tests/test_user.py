@@ -17,7 +17,7 @@ class UserTest(unittest.TestCase):
             "username": "angie",
             "password": "angie"
         }
-        
+
     def test_already_registered_user(self):
         """Tests re-registration."""
         resp = self.client.post('/auth/register',
@@ -57,7 +57,7 @@ class UserTest(unittest.TestCase):
         result = json.loads(res.data)
         self.assertEqual(result['message'],
                          "Login successful.")
-        
+
 
     def test_unregistered_user_login(self):
         """Tests unregistered user login."""
