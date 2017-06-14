@@ -67,7 +67,7 @@ class BucketLists(Resource):
         except:
             return make_response(jsonify({
                 "error": "missing data in request."
-            }))
+            }), 404)
 
     def get(self):
         token = request.headers.get('Authorization')
@@ -108,7 +108,6 @@ class BucketLists(Resource):
                                                   "next page": next_page,
                                                   "previous_page": previous_page
                                                   }), 200)
-
                 else:
                     return make_response(
                         jsonify(
@@ -172,7 +171,7 @@ class SingleBucketList(Resource):
                             'message': "name field is missing."
 
                         }
-                    ), 403)
+                    ), 400)
             if new_bucketlist_name == bucketlist.name:
                 return make_response(
                     jsonify(
@@ -331,7 +330,7 @@ class BucketListItem(Resource):
         except:
             return make_response(jsonify({
                 "error": "missing data in request."
-            }))
+            }), 404)
 
     def get(self, bucketlist_id):
         token = request.headers.get('Authorization')
@@ -381,7 +380,6 @@ class SingleBucketListItem(Resource):
                             'date_modified': item.date_modified
                         }
                     ), 200)
-
             return make_response(
                 jsonify(
                     {
@@ -416,8 +414,7 @@ class SingleBucketListItem(Resource):
                         {
                             'message': "name field is missing."
                         }
-                    ), 403)
-
+                    ), 400)
             if new_bucketlistitem_name == bucketlistitem.name:
                 return make_response(
                     jsonify(
@@ -426,7 +423,6 @@ class SingleBucketListItem(Resource):
                         }
                     ), 403)
             bucketlistitem.name = new_bucketlistitem_name
-
             db.session.add(bucketlistitem)
             db.session.commit()
             return make_response(

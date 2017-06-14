@@ -27,7 +27,6 @@ class Register(Resource):
 
                         }
                     ), 400)
-
             user = User.query.filter_by(username=username).first()
             if user:
                 return make_response(
@@ -49,7 +48,7 @@ class Register(Resource):
         except:
             return make_response(jsonify({
                 "error": "missing data in request."
-            }))
+            }), 404)
 
 
 class Login(Resource):
@@ -95,4 +94,4 @@ class Login(Resource):
         except:
             return make_response(jsonify({
                 "error": "missing data in request."
-            }))    
+            }), 404)    

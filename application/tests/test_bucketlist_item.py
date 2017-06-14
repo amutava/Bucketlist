@@ -34,7 +34,7 @@ class BucketListTest(unittest.TestCase):
         self.token = user.generate_auth_token(user.id)
 
     def test_create_bucketlist_item(self):
-        """Tests adding a bucketlist item"""
+        """Tests adding a bucketlist item."""
         resp = self.client.post('/bucketlists',
                                 data=json.dumps(self.bucketlist),
                                 content_type="application/json", headers={
@@ -82,7 +82,7 @@ class BucketListTest(unittest.TestCase):
         self.assertEqual(resp_item2.status_code, 409)
 
     def test_get_bucketlist_items(self):
-        """Tests getting bucketlist items"""
+        """Tests getting bucketlist items."""
         resp = self.client.post('/bucketlists',
                                 data=json.dumps(self.bucketlist),
                                 content_type="application/json", headers={
@@ -104,7 +104,7 @@ class BucketListTest(unittest.TestCase):
         self.assertEqual(resp_item.status_code, 200)
 
     def test_get_bucketlist_item_id(self):
-        """Gets a bucketlist item by id"""
+        """Gets a bucketlist item by id."""
         resp = self.client.post('/bucketlists',
                                 data=json.dumps(self.bucketlist),
                                 content_type="application/json", headers={
@@ -147,7 +147,7 @@ class BucketListTest(unittest.TestCase):
         self.assertEqual(update_item.status_code, 201)
 
     def test_delete_bucketlistitem_by_id(self):
-        """Tests deleting a bucketlist by id"""
+        """Tests deleting a bucketlist by id."""
         resp = self.client.post('/bucketlists',
                                 data=json.dumps(self.bucketlist),
                                 content_type="application/json", headers={

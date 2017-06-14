@@ -89,7 +89,7 @@ class BucketListTest(unittest.TestCase):
 
     def test_no_bucketlists(self):
         """Tests that it returns the message\
-         for user with no bucketlists """    
+         for user with no bucketlists."""    
         response = self.client.get('/bucketlists', headers={
             "Authorization":self.token
             })
@@ -130,7 +130,7 @@ class BucketListTest(unittest.TestCase):
             "Bucketlist with the given id does not exist.")
 
     def test_delete_bucketlist_by_id(self):
-        """Tests deleting a bucketlist"""
+        """Tests deleting a bucketlist."""
         resp = self.client.post('/bucketlists', 
             data=json.dumps(self.bucketlist), 
             content_type= "application/json", headers={
