@@ -126,7 +126,7 @@ class SingleBucketList(Resource):
         user_id = User.verify_token(token)
         if isinstance(user_id, int):
             bucketlist = BucketList.query.filter_by(
-                created_by=user_id).first()
+                created_by=user_id, id=bucketlist_id).first()
             if not bucketlist:
                 return make_response(
                     jsonify(
@@ -266,7 +266,7 @@ class BucketListItem(Resource):
                 name = request.json["name"]
                 if name:
                     item = BucketListItems.query.filter_by(
-                        name=name).first()
+                        name=name, bucketlist_id=bucketlist_id).first()
                     if item:
                         return make_response(
                             jsonify(

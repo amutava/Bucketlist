@@ -34,7 +34,7 @@ def create_app(config_name):
     api.add_resource(SingleBucketList, '/bucketlists/<bucketlist_id>')
     api.add_resource(BucketListItem, '/bucketlistitems/<bucketlist_id>/items')
     api.add_resource(SingleBucketListItem,
-                 '/bucketlistitems/<bucketlist_id>/items/<item_id>')
+                 '/bucketlistitems/<bucketlist_id>/items/<item_id>/')
     db.init_app(app)
     return app
 

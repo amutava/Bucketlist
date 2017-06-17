@@ -35,7 +35,7 @@ class User(UserMixin, db.Model):
         try:
             # set up a payload with an expiration time
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=5),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=10),
                 'iat': datetime.datetime.utcnow(),
                 'sub': user_id
             }
