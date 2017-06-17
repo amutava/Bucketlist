@@ -73,70 +73,41 @@ class BucketLists(Resource):
         token = request.headers.get('Authorization')
         user_id = User.verify_token(token)
         if isinstance(user_id, int):
-            search = request.args.get("q", "")
-            if not search:
-                if request.args.get("page"):
-                    page = int(request.args.get("page"))
-                page = 1
-                if request.args.get("limit") and int(request.
-                                                     args.get("limit")) < 100:
-                    limit = int(request.
-                                args.get("limit"))
-                limit = 2
-
-                paginated_bucketlists = BucketList.query.filter_by(
-                    created_by=user_id).paginate(page, limit, False)
-                user_bucketlists = paginated_bucketlists.items
-                if paginated_bucketlists.has_next:
-                    next_page = '/bucketlists/?page=' +\
-                        str(page + 1) + '&limit=' + str(limit)
-                next_page = "This page is empty."
-                if paginated_bucketlists.has_prev:
-                    previous_page = '/bucketlists/?page=' +\
-                        str(page - 1) + '&limit=' + str(limit)
-                previous_page = "This page is empty."
-                bucketlists = []
-                if user_bucketlists:
-                    for b_lists in user_bucketlists:
-                        bucketlists.append({
-                            "id": b_lists.id,
-                            "name": b_lists.name,
-                            "description": b_lists.description,
-                            "created_by": b_lists.created_by
-                        })
-                    return make_response(jsonify({'bucketlists': bucketlists,
-                                                  "next page": next_page,
-                                                  "previous_page": previous_page
-                                                  }), 200)
-                else:
-                    return make_response(
-                        jsonify(
-                            {
-                                'message': "There are no bucketlists for the current user."
-                            }
-                        ), 404)
+            limit = int(request.args.get("limit", 20))
+            page = int(request.args.get("page", 1))
+            if int(limit) > 100:
+                limit = 100
+            search = request.args.get('q', None)
+            if search:
+                user_bucketlists = BucketList.query.filter(
+                    BucketList.name.ilike('%' + search + '%')).filter_by(user_id=user.id)
+                if not bucketlists_query.count():
+                    return {"message":
+                        "No bucketlists found matching '{}'".format(search)}
             else:
-                search_result = BucketList.query.filter_by(name=search).all()
-                if not search_result:
+                user_bucketlists = BucketList.query.filter_by(
+                created_by=user_id)
+            paginated_bucketlists = user_bucketlists.paginate(page=page,
+                                                 per_page=limit,
+                                                 error_out=False)
+            if paginated_bucketlists:
+                bucketlists = []
+                for b_lists in paginated_bucketlists.items:
+                        bucketlists.append({
+                        "id": b_lists.id,
+                        "name": b_lists.name,
+                        "description": b_lists.description,
+                        "created_by": b_lists.created_by
+                        })
+                return make_response(jsonify({'bucketlists': bucketlists
+                                             }), 200)
+            else:
                     return make_response(
-                        jsonify(
-                            {
-                                'message': "Bucketlist with the name doesn't exist."
-                            }
-                        ), 404)
-                result = []
-                for b_lists in search_result:
-                    result.append({"name": b_lists.id,
-                                   "id": b_lists.id,
-                                   "date_created": b_lists.date_created,
-                                   "date_modified": b_lists.date_modified,
-                                   "created_by": b_lists.created_by})
-                return make_response(
                     jsonify(
                         {
-                            'bucketlists': result
+                            'message': "There are no bucketlists for the current user."
                         }
-                    ), 200)
+                    ), 404)
 
         else:
             return make_response(

@@ -6,6 +6,7 @@ from flask_login import LoginManager
 from flask_restful import Api
 from flask_script import Manager
 from flask_migrate import Migrate
+from flask_cors import CORS, cross_origin
 
 from config import config
 
@@ -25,6 +26,7 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     api = Api(app)
+    CORS(app)
     app.config['SECRET_KEY'] = 'Jsa4JL*D6P;Ep<qb'
     api.add_resource(Register, '/auth/register')
     api.add_resource(Login, '/auth/login')
