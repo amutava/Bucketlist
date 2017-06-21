@@ -96,8 +96,7 @@ class BucketListTest(unittest.TestCase):
         })
         result = json.loads(response.data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(result['message'],
-                         'There are no bucketlists for the current user.')
+        
 
     def test_get_bucketlist_by_id(self):
         """Tests getting a single bucketlist"""
