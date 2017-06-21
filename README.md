@@ -23,9 +23,23 @@ BucketList API is a simple application built using the flask microframework. It'
 
 ### Installation
 1. Create a folder.
+` `
 2. Clone the repository into the given folder.
+`https://github.com/andela-amutava/Bucketlist.git`
 3. Navigate to the project folder. 
-4. Create virtual environment.
+
+4. Install project dependencies in your virtual environment.
+` pip install -r requirements.txt`
+
 5. Install the project dependencies from the requirements.txt file.
 6.Set up project development. Run db migrations.
+`
+ python manage.py db init
+ python manage.py db migrate
+ python manage.py db upgrade
+`
 7. Run the server.
+`python manage.py runserver`
+
+##Testing
+`You can run the tests nosetests --with-coverage`
