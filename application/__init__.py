@@ -12,14 +12,15 @@ from config import config
 
 db = SQLAlchemy()
 
-from application.api.controller import (BucketLists, 
-            BucketListItem, SingleBucketList, 
-            SingleBucketListItem)
+from application.api.controller import (BucketLists,
+                                        BucketListItem, SingleBucketList,
+                                        SingleBucketListItem)
 from application.auth.controller import Register, Login
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app_blueprint = Blueprint('api', __name__)
+
 
 def create_app(config_name):
     app = Flask(__name__)
@@ -34,7 +35,7 @@ def create_app(config_name):
     api.add_resource(SingleBucketList, '/bucketlists/<bucketlist_id>')
     api.add_resource(BucketListItem, '/bucketlistitems/<bucketlist_id>/items')
     api.add_resource(SingleBucketListItem,
-                 '/bucketlistitems/<bucketlist_id>/items/<item_id>/')
+                     '/bucketlistitems/<bucketlist_id>/items/<item_id>')
     db.init_app(app)
     return app
 

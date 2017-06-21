@@ -70,6 +70,7 @@ class BucketLists(Resource):
             }), 404)
 
     def get(self):
+        """Gets all the bucketlists"""
         token = request.headers.get('Authorization')
         user_id = User.verify_token(token)
         if isinstance(user_id, int):
@@ -80,29 +81,29 @@ class BucketLists(Resource):
             search = request.args.get('q', None)
             if search:
                 user_bucketlists = BucketList.query.filter(
-                    BucketList.name.ilike('%' + search + '%')).filter_by(user_id=user.id)
-                if not bucketlists_query.count():
+                    BucketList.name.ilike('%' + search + '%')).filter_by(created_by=user_id)
+                if not user_bucketlists .count():
                     return {"message":
-                        "No bucketlists found matching '{}'".format(search)}
+                            "No bucketlists found matching '{}'".format(search)}
             else:
                 user_bucketlists = BucketList.query.filter_by(
-                created_by=user_id)
+                    created_by=user_id)
             paginated_bucketlists = user_bucketlists.paginate(page=page,
-                                                 per_page=limit,
-                                                 error_out=False)
+                                                              per_page=limit,
+                                                              error_out=False)
             if paginated_bucketlists:
                 bucketlists = []
                 for b_lists in paginated_bucketlists.items:
-                        bucketlists.append({
+                    bucketlists.append({
                         "id": b_lists.id,
                         "name": b_lists.name,
                         "description": b_lists.description,
                         "created_by": b_lists.created_by
-                        })
+                    })
                 return make_response(jsonify({'bucketlists': bucketlists
-                                             }), 200)
+                                              }), 200)
             else:
-                    return make_response(
+                return make_response(
                     jsonify(
                         {
                             'message': "There are no bucketlists for the current user."
@@ -119,7 +120,7 @@ class BucketLists(Resource):
 
 
 class SingleBucketList(Resource):
-    """Shows a single bucketlist item and lets you delete a bucketlist item."""
+    """Shows a single bucketlist  and lets you delete and edit a bucketlist ."""
 
     def put(self, bucketlist_id):
         token = request.headers.get('Authorization')
@@ -304,6 +305,7 @@ class BucketListItem(Resource):
             }), 404)
 
     def get(self, bucketlist_id):
+        """Gets all the items of a bucketlist"""
         token = request.headers.get('Authorization')
         user_id = User.verify_token(token)
         if isinstance(user_id, int):
@@ -333,6 +335,7 @@ class BucketListItem(Resource):
 
 
 class SingleBucketListItem(Resource):
+    """Gets a single item of a bucketlist"""
 
     def get(self, bucketlist_id, item_id):
         token = request.headers.get('Authorization')

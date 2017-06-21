@@ -4,7 +4,7 @@
 |
 [![Coverage Status](https://coveralls.io/repos/github/andela-amutava/Bucketlist/badge.svg?branch=master)](https://coveralls.io/github/andela-amutava/Bucketlist?branch=master)
 
-BucketList API is a simple application built using the flask microframework. It's an application that helps users track what they want to in the future.
+BucketList API is a simple application built using the flask microframework. It's an application that helps users track what they want to do in the future.
 
 
 | URL Endpoint | HTTP Methods | Summary |

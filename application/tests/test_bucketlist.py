@@ -54,7 +54,7 @@ class BucketListTest(unittest.TestCase):
         resp = self.client.post('/bucketlists',
                                 data=json.dumps(self.bucketlist),
                                 content_type="application/json", headers={
-                                    "Authorization": "self.token"
+                                    "Authorization": "wrongtoken"
                                 })
         result = json.loads(resp.data)
         self.assertEqual(resp.status_code, 401)
@@ -62,6 +62,7 @@ class BucketListTest(unittest.TestCase):
                          "Invalid token. Please register or login.")
 
     def test_missing_data(self):
+        """Tests missing data in request."""
         resp = self.client.post('/bucketlists',
                                 data=json.dumps({"name": "Go to Canada."}),
                                 content_type="application/json", headers={
@@ -148,7 +149,7 @@ class BucketListTest(unittest.TestCase):
         self.assertEqual(response.status_code, 204)
 
     def test_update_bucketlist_by_id(self):
-        """Tests updating a bucketlist."""
+        """Tests updating a bucketlist by id."""
         resp = self.client.post('/bucketlists',
                                 data=json.dumps(self.bucketlist),
                                 content_type="application/json", headers={
@@ -167,6 +168,31 @@ class BucketListTest(unittest.TestCase):
         result = json.loads(resp.data)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(result["message"], "Bucketlist edited successfully.")
+
+    def test_bucketlist_search(self):
+        """Tests that search of a bucketlist works."""
+        resp = self.client.post('/bucketlists',
+                                data=json.dumps(self.bucketlist),
+                                content_type="application/json", headers={
+                                    "Authorization": self.token
+                                })
+
+        response = self.client.get(
+            "/bucketlists?q=Go to Canada", headers={
+                "Authorization": self.token})
+        self.assertEqual(response.status_code, 200)
+
+    def test_bucketlist_pagination(self):
+        """Tests that pagination works."""
+        resp = self.client.post('/bucketlists',
+                                data=json.dumps(self.bucketlist),
+                                content_type="application/json", headers={
+                                    "Authorization": self.token
+                                })
+        response = self.client.get(
+            "/bucketlists?page=1&limit=1", headers={
+                "Authorization": self.token})
+        self.assertEqual(response.status_code, 200)
 
     def tearDown(self):
         db.session.remove()

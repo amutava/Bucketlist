@@ -58,7 +58,6 @@ class UserTest(unittest.TestCase):
         self.assertEqual(result['message'],
                          "Login successful.")
 
-
     def test_unregistered_user_login(self):
         """Tests unregistered user login."""
         res = self.client.post('/auth/login',

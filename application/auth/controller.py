@@ -78,7 +78,7 @@ class Login(Resource):
             if user and user.verify_password(password):
                 token = user.generate_auth_token(user.id)
                 if token:
-                    return make_response(jsonify( {
+                    return make_response(jsonify({
                         "message": "Login successful.",
                         "username": user.username,
                         "token": token.decode()
@@ -86,12 +86,12 @@ class Login(Resource):
                     ), 200)
             return make_response(
                 jsonify(
-                         {
-                             'message': "Invalid username/password."
+                    {
+                        'message': "Invalid username/password."
 
-                         }
-                         ), 401)
+                    }
+                ), 401)
         except:
             return make_response(jsonify({
                 "error": "missing data in request."
-            }), 404)    
+            }), 404)

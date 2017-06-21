@@ -7,6 +7,7 @@ from flask import current_app
 
 from application import db
 
+
 class User(UserMixin, db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
