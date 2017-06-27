@@ -1,6 +1,6 @@
 # Bucketlist API(Checkpoint 2)
 
-[![Build Status](https://travis-ci.org/andela-amutava/Bucketlist.svg?branch=master)](https://travis-ci.org/andela-amutava/Bucketlist)
+[![Build Status](https://travis-ci.org/andela-amutava/Bucketlist.svg?branch=develop)](https://travis-ci.org/andela-amutava/Bucketlist)
 |
 [![Coverage Status](https://coveralls.io/repos/github/andela-amutava/Bucketlist/badge.svg?branch=master)](https://coveralls.io/github/andela-amutava/Bucketlist?branch=master)
 
@@ -17,9 +17,9 @@ BucketList API is a simple application built using the flask microframework. It'
 | `/api/bucketlists/<id>` | `GET` |  Retrieve bucket list details |
 | `/api/bucketlists/<id>` | `PUT` | Update bucket list details |
 | `/api/bucketlists/<id>` | `DELETE` | Delete a bucket list |
-| `/api/bucketlists/<id>/items` | `POST` |  Create items in a bucket list |
-| `/api/bucketlists/<id>/items/<item_id>` | `DELETE`| Delete a item in a bucket list|
-| `/api/bucketlists/<id>/items/<item_id>` | `PUT`| update a bucket list item details|
+| `/api/bucketlistitems/<id>/items` | `POST` |  Create items in a bucket list |
+| `/api/bucketlistitems/<id>/items/<item_id>` | `DELETE`| Delete a item in a bucket list|
+| `/api/bucketlistitems/<id>/items/<item_id>` | `PUT`| update a bucket list item details|
 
 ### Installation
 1. Create a folder.
