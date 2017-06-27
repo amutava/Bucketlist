@@ -405,7 +405,7 @@ class SingleBucketListItem(Resource):
                      'name': bucketlistitem.name,
                      'date_created': bucketlistitem.date_created,
                      'date_modified': bucketlistitem.date_modified,
-                     'message': "Bucketlist edited successfully."
+                     'message': "Bucketlist item edited successfully."
                      }
                 ), 201)
         else:
