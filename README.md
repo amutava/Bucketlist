@@ -22,7 +22,7 @@ User can delete/ edit items of a bucketlist
 
 2. Clone the repository into the given folder.<br/>
     `https://github.com/andela-amutava/Bucketlist.git`<br/>
-3. Navigate to the project folder.
+3. Navigate to the project folder.<br/>
    `Bucketlist` 
 
 4. Install project dependencies in your virtual environment.<br/>
@@ -31,8 +31,9 @@ User can delete/ edit items of a bucketlist
 
 5.Set up project development. Run db migrations.<br/>
      ```python manage.py db init
-      python manage.py db migrate
-      python manage.py db upgrade```
+        python manage.py db migrate
+        python manage.py db upgrade
+      ```
 6. Run the server.<br/>
    `python manage.py runserver`
 
