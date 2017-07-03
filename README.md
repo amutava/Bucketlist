@@ -68,6 +68,7 @@ To achieve secure endpoints on login a user is issued with a token that expires 
 | `/api/bucketlistitems/<id>/items/<item_id>` | `PUT`| update a bucket list item details|
 
 
+
 ### Testing
    `You can run the tests nosetests --with-coverage`
 
